@@ -1,0 +1,12 @@
+static int hey (int x) {
+    E
+}
+
+//-> Pasos
+//Program
+//Opt_func
+//funct_head
+//funct name
+//funct type
+//static
+//dec_type

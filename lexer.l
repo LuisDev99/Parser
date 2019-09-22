@@ -20,8 +20,7 @@ WHITESPACE [\t\r\f" "]
 ID ({LETTER}|"_")({LETTER}|{DIGIT})*
 ADD_OP [+-] 
 MULT_OP [*/]
-LOG_OP ("||")|("&&")
-REL_OP (">")|("<")|("==")|("<=")|(">=")
+LOG_OP ("||")|("&&")|(">")|("<")|("==")|("<=")|(">=")
 
 STRING_LITERAL ["]({LETTER}|{DIGIT}|" "|[%=@,-=()_])*["]
 DATE_LITERAL {DIGIT}{DIGIT}"/"{DIGIT}{DIGIT}"/"{DIGIT}{DIGIT}{DIGIT}{DIGIT}
@@ -36,6 +35,7 @@ REAL_LITERAL {DIGIT}+"."{DIGIT}+
 %%
 
 "."             { return PERIOD; } 
+":="            { return ASSIGN; }
 "::"            { return DDPERIOD;}
 "++"            { return INCR;}    
 "false"         { return False_Literal;}
@@ -43,7 +43,7 @@ REAL_LITERAL {DIGIT}+"."{DIGIT}+
 "while"         { return WHILE;}
 "if"            { return IF;}
 "else"          { return ELSE;}
-"EXIT"          { return RETURN;}
+"return"          { return RETURN;}
 "BEGIN"         { return INICIO;}
 "THEN"          { return IF_THEN;}
 "DO"            { return DO;}
@@ -69,7 +69,6 @@ REAL_LITERAL {DIGIT}+"."{DIGIT}+
 {ADD_OP}        { return ADD_OP;}
 {MULT_OP}       { return MULT_OP;}
 {LOG_OP}        { return LOG_OP;}
-{REL_OP}        { return REL_OP;}
 
 {INT_LITERAL}    { return INT_LITERAL;}
 {REAL_LITERAL}   { return REAL_LITERAL;}
@@ -77,7 +76,7 @@ REAL_LITERAL {DIGIT}+"."{DIGIT}+
 {DATE_LITERAL}   { return DATE_LITERAL;}
 
 
-{WHITESPACE}    { return EPSILON;}
+{WHITESPACE}    {}
 {COMMENT}       {}
 
 .               { return ERROR;}

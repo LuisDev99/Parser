@@ -5,6 +5,7 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <vector>
 #include "tokens.h"
 
 using namespace std;
@@ -13,6 +14,7 @@ class parser
 {
 
 private:
+    //vector<int> tokens;
     yyFlexLexer *lexer;
     ifstream in;
     int lookahead_token;
@@ -47,9 +49,9 @@ public:
 
     void beginAnalyzer();
 
-    bool Match(string content);
+    bool Match(string content); //Not used
     bool Match(yytokentype token);
-    bool Match(int token, string content);
+    bool Match(int token, string content); //Not used
 
     void Consume_Token();
 
@@ -73,7 +75,6 @@ public:
     bool assign_stmt();
     bool function_stmt();
     bool bool_expr();
-    bool bool_constant();
     bool constant();
 };
 

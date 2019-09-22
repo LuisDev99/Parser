@@ -1,5 +1,11 @@
-static int hey (int x) {
-    E
+static void hey (int a, int b, void c) {
+    if( "a" >= "b"){
+        int a := 5;
+        if(true){
+            int a := "Hola";
+            int b := "Okay";
+        }
+    }
 }
 
 //-> Pasos

@@ -40,6 +40,7 @@ enum yytokentype
     BRACK_OP = 289,
     BRACK_CL = 290,
     COMA = 291,
-    EPSILON = 292
+    EPSILON = 292,
+    ASSIGN = 293
 };
 #endif

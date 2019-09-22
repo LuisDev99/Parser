@@ -19,7 +19,7 @@ decl_type:
 
 param_list_opt:
 	decl_param
-	| param_list_opt+ COMA+ decl_param
+	| decl_param+ COMA+ param_list
 	| EPSILON;
 
 decl_param: decl_type ID;
@@ -46,9 +46,9 @@ function_stmt:
 	decl_type ID PAR_OP param_list_opt PAR_CL SEMICOLON;
 
 bool_expr:
-	bool_constant
-	| constant LOG_OP constant
-	| constant REL_OP constant;
+	TRUE_LITERAL
+	| FALSE_LITERAL
+	| constant LOG_OP constant;
 
 bool_constant: TRUE_LITERAL | FALSE_LITERAL;
 

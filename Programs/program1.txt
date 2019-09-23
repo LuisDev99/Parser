@@ -4,6 +4,7 @@ static void hey (int a, int b, void c) {
         if(true){
             int a := "Hola";
             int b := "Okay";
+            return "a";
         }
     }
 }

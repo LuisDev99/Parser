@@ -6,6 +6,7 @@
 #include <fstream>
 #include <string>
 #include <vector>
+#include <tuple>
 #include "tokens.h"
 
 using namespace std;
@@ -14,7 +15,8 @@ class parser
 {
 
 private:
-    //vector<int> tokens;
+    vector<int> tokens;
+    vector<tuple<string, string>> derivation;
     yyFlexLexer *lexer;
     ifstream in;
     int lookahead_token;
@@ -45,6 +47,21 @@ public:
     {
         /* Always print when encountering a terminal */
         cout << "Error: " + error_message << endl;
+    }
+
+    void Add_Derivation_Path(string function_name, string token)
+    {
+        derivation.push_back({function_name, token});
+    }
+
+    void Print_Derivations_Path()
+    {
+        cout << "++++ Printing Derivation Path of the input ++++\n\n";
+        for (tuple<string, string> path : derivation)
+        {
+            cout << "\tFunction \"" + get<0>(path) + "\" received " + get<1>(path) << endl;
+        }
+        cout << "\n++++                The End                ++++\n\n";
     }
 
     void beginAnalyzer();

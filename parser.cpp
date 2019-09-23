@@ -3,7 +3,10 @@
 void parser::beginAnalyzer()
 {
     if (Program())
+    {
         cout << " Parsing successful \n";
+        Print_Derivations_Path();
+    }
     else
     {
         cout << " Parsing gone wrong \n";
@@ -72,6 +75,8 @@ bool parser::funct_head()
             return false;
         }
 
+        Add_Derivation_Path("func_head", "Open Parenthesis '('");
+
         if (!param_list_opt())
         {
             return false;
@@ -84,6 +89,7 @@ bool parser::funct_head()
             return false;
         }
 
+        Add_Derivation_Path("func_head", "Open Parenthesis ')'");
         return true;
     }
     else
@@ -96,6 +102,7 @@ bool parser::funct_name()
 {
     if (funct_type())
     {
+        string identifier = lookahead_token_content;
         if (!Match(ID))
         {
             //TODO
@@ -104,6 +111,7 @@ bool parser::funct_name()
             return false;
         }
 
+        Add_Derivation_Path("func_name", "Identifier: " + identifier);
         return true;
     }
     else
@@ -120,6 +128,8 @@ bool parser::funct_type()
         PrintErrorMessage("Expected keyword 'static' in function declaration type, found: " + BadToken);
         return false;
     }
+
+    Add_Derivation_Path("func_type", "static");
 
     if (decl_type())
     {
@@ -140,6 +150,7 @@ bool parser::decl_type()
         lookahead_token == REAL_TYPE || lookahead_token == DATE_TYPE ||
         lookahead_token == STRING_TYPE)
     {
+        Add_Derivation_Path("decl_type", lookahead_token_content);
         Consume_Token();
         return true;
     }
@@ -173,6 +184,8 @@ bool parser::param_list_opt()
             return false;
         }
 
+        Add_Derivation_Path("param_list_opt", " A comma ','");
+
         if (lookahead_token != PAR_CL)
         {
             return param_list_opt();
@@ -188,59 +201,20 @@ bool parser::param_list_opt()
     {
         return false;
     }
-
-    // OLD
-    // It works but with two params only
-    // if (decl_param())
-    // {
-    //     if (lookahead_token == EPSILON)
-    //     {
-    //         Consume_Token();
-    //         return true;
-    //     }
-
-    //     if (lookahead_token == PAR_CL)
-    //     {
-    //         Consume_Token();
-    //         return true;
-    //     }
-
-    //     if (!Match(COMA))
-    //     {
-    //         string BadToken = lexer->YYText();
-    //         PrintErrorMessage("Expected a comma ',' between parameters, found: " + BadToken);
-    //         return false;
-    //     }
-
-    //     return decl_param();
-    // }
-    // else
-    // {
-    //     if (lookahead_token == PAR_CL)
-    //     {
-    //         Consume_Token();
-    //         return true;
-    //     }
-    //     else
-    //     {
-    //         return param_list_opt();
-    //     }
-
-    //     return false;
-    // }
 }
 
 bool parser::decl_param()
 {
     if (decl_type())
     {
+        string identifier = lookahead_token_content;
         if (!Match(ID))
         {
             string BadToken = lexer->YYText();
             PrintErrorMessage("Expected an identifier after variable type in function parameter, found: " + BadToken);
             return false;
         }
-
+        Add_Derivation_Path("decl_param", "Identifier: " + identifier);
         return true;
     }
     else
@@ -260,6 +234,8 @@ bool parser::body()
         return false;
     }
 
+    Add_Derivation_Path("body", "Open Bracket '{'");
+
     if (stmt_list())
     {
         if (!Match(BRACK_CL))
@@ -269,6 +245,7 @@ bool parser::body()
             return false;
         }
 
+        Add_Derivation_Path("body", "Closing Bracket '}'");
         return true;
     }
     else
@@ -306,15 +283,18 @@ bool parser::stmt()
         return if_stmt();
     }
 
+    //return
     if (lookahead_token == RETURN)
     {
         return return_stmt();
     }
 
+    //if the keyword wasnt either an if, while or return, then it must be an expr
     // expr
     if (expr_stmt())
     {
-        if (lookahead_token != BRACK_CL) //If we havent reached the end of the body (in other words, if the next token isnt an '}'), then continue calling statement because there's literally more statements to parse
+        //Check to see If we havent reached the end of the body (in other words, if the next token isnt an '}'), then continue calling statement because there's literally more statements to parse
+        if (lookahead_token != BRACK_CL)
             return stmt();
 
         return true;
@@ -334,12 +314,16 @@ bool parser::if_stmt()
         return false;
     }
 
+    Add_Derivation_Path("if_stmt", "Keyword if");
+
     if (!Match(PAR_OP))
     {
         string BadToken = lexer->YYText();
         PrintErrorMessage("Expected open parenthesis '(' after if, found: " + BadToken);
         return false;
     }
+
+    Add_Derivation_Path("if_stmt", "Open Parenthesis '('");
 
     if (bool_expr())
     {
@@ -350,6 +334,7 @@ bool parser::if_stmt()
             return false;
         }
 
+        Add_Derivation_Path("if_stmt", "Closing Parenthesis ')'");
         return body();
     }
     else
@@ -367,12 +352,16 @@ bool parser::while_stmt()
         return false;
     }
 
+    Add_Derivation_Path("while_stmt", "Keyword while");
+
     if (!Match(PAR_OP))
     {
         string BadToken = lexer->YYText();
         PrintErrorMessage("Expected open parenthesis '(' after while, found: " + BadToken);
         return false;
     }
+
+    Add_Derivation_Path("while_stmt", "Open Parenthesis '('");
 
     if (bool_expr())
     {
@@ -400,8 +389,11 @@ bool parser::return_stmt()
         return false;
     }
 
+    Add_Derivation_Path("return_stmt", "Keyword return");
+
     if (lookahead_token == SEMICOLON)
     {
+        Add_Derivation_Path("return_stmt", "semicolon ';'");
         Consume_Token();
         return true;
     }
@@ -416,10 +408,13 @@ bool parser::return_stmt()
                 return false;
             }
 
+            Add_Derivation_Path("return_stmt", "semicolon ';'");
             return true;
         }
         else
         {
+            string BadToken = lexer->YYText();
+            PrintErrorMessage("Expected a constant or semicolon after return, found: " + BadToken);
             return false;
         }
     }
@@ -440,6 +435,7 @@ bool parser::expr_stmt()
             return false;
         }
 
+        Add_Derivation_Path("assign_stmt", "semicolon ';'");
         return true;
     }
     else
@@ -452,12 +448,15 @@ bool parser::assign_stmt()
 {
     if (decl_type())
     {
+        string identifier = lookahead_token_content;
         if (!Match(ID))
         {
             string BadToken = lexer->YYText();
             PrintErrorMessage("Expected an identifier name after variable type, found: " + BadToken);
             return false;
         }
+
+        Add_Derivation_Path("assign_stmt", "Identifier: " + identifier);
 
         if (!Match(ASSIGN))
         {
@@ -466,6 +465,7 @@ bool parser::assign_stmt()
             return false;
         }
 
+        Add_Derivation_Path("assign_stmt", "Assign operator ':='");
         return constant();
     }
     else
@@ -525,12 +525,14 @@ bool parser::bool_expr()
 {
     if (lookahead_token == True_Literal || lookahead_token == False_Literal)
     {
+        Add_Derivation_Path("bool_expr", "boolean literal " + lookahead_token_content);
         Consume_Token();
         return true;
     }
 
     if (constant())
     {
+        string logical_operator = lookahead_token_content;
         if (!Match(LOG_OP))
         {
             string BadToken = lexer->YYText();
@@ -538,6 +540,7 @@ bool parser::bool_expr()
             return false;
         }
 
+        Add_Derivation_Path("bool_expr", "logical operators " + logical_operator);
         return constant();
     }
     else
@@ -551,11 +554,14 @@ bool parser::constant()
     if (lookahead_token == INT_LITERAL || lookahead_token == REAL_LITERAL ||
         lookahead_token == DATE_LITERAL || lookahead_token == STRING_LITERAL)
     {
+        Add_Derivation_Path("constant", lookahead_token_content);
         Consume_Token();
         return true;
     }
     else
     {
+        string BadToken = lexer->YYText();
+        PrintErrorMessage("Invalid constant: " + BadToken);
         return false;
     }
 }
